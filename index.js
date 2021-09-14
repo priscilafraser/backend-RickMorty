@@ -28,16 +28,20 @@ require ("dotenv").config();
     //busca individualmente
     const getPersonagensById = async (id) => personagens.findOne({_id: ObjectId(id)});
 
-    
-// const { MongoClient } = require('mongodb');
-// const uri = "mongodb+srv://dev:121002@cluster0.xfgj7.mongodb.net/Cluster0?retryWrites=true&w=majority";
-// const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-// client.connect(err => {
-//   const collection = client.db("Cluster0").collection("filmes");
-//   // perform actions on the collection object
-//   client.close();
-// });
 
+    // CORS (Cross Origin Resource) Aplica a todas as rotas criadas essas permissoes abaixo, seja de método e protege nosso backend
+    app.all("/", (req, res, next) => {
+        res.header("Access-Control-Allow-Origin", "*");
+
+        res.header("Access-Control-Allow-Methods", "*");
+
+        res.header(
+            "Access-Control-Allow-Headers",
+            "Access-Control-Allow-Headers, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization"
+        );
+
+        next();
+    });
 
 
 
@@ -61,19 +65,20 @@ require ("dotenv").config();
     //POST... VERIFICAR A VALIDAÇÃO, INDEPENDENTE DELA ESTÁ FUNCIONANDO
     app.post('/personagens', async (req, res) => {
         const objeto = req.body;
-        const {insertCount} = await personagens.insertOne(objeto);
-
-
+        
         if (!objeto || !objeto.nome || !objeto.imagemUrl) {
             res.send("Objeto inválido");
             return;
         }
 
+        const insertCount = await personagens.insertOne(objeto);
+
         
-        if (insertCount !== 1) {
+        if (!insertCount) {
             res.send("Ocorreu um erro");
             return;
         } 
+
         res.send(objeto);
         // const {insertedCount} = await personagens;   //inserir objeto dentro do banco, criando variavel dentro da chaves pq estamos inserindo como objeto
     });
