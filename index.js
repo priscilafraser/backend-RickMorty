@@ -5,15 +5,19 @@ const ObjectId = mongodb.ObjectId;
 require ("dotenv").config();
 
 (async () => {
-    const dbHost = process.env.DB_HOST;
-    const dbPort = process.env.DB_PORT;
+    const dbUser = process.env.DB_USER;
+    const dbPassword = process.env.DB_PASSWORD;
     const dbName = process.env.DB_NAME;
+    const dbChar = process.env.DB_CHAR;
+
 
     const app = express();
     app.use(express.json());
     const port = process.env.PORT || 3000;
 
-    const connectionString = `mongodb://${dbHost}:${dbPort}/${dbName}`;
+    //const connectionString = `mongodb://${dbHost}:${dbPort}/${dbName}`;
+    const connectionString = `mongodb+srv://${dbUser}:${dbPassword}@cluster0.${dbChar}.mongodb.net/${dbName}?retryWrites=true&w=majority`;
+
 
     const options = {useUnifiedTopology: true};
 
@@ -71,10 +75,10 @@ require ("dotenv").config();
             return;
         }
 
-        const insertCount = await personagens.insertOne(objeto);
+        const result = await personagens.insertOne(objeto);
 
         
-        if (!insertCount) {
+        if (result.acknowledged == false) {
             res.send("Ocorreu um erro");
             return;
         } 
@@ -88,16 +92,33 @@ require ("dotenv").config();
         const id = req.params.id;
         const objeto = req.body;
 
-        res.send(
-            await personagens.updateOne(
-                {
-                    _id: ObjectId(id),
-                },
-                {
-                    $set: objeto,
-                }
-            )
+
+        if (!objeto || !objeto.nome || !objeto.imagemUrl) {
+            res.send({message: "Requisição inválida"});
+            return;
+        };
+
+
+        const quantidadeDePersonagens = await personagens.countDocuments({
+            _id: ObjectId(id)
+        });
+
+        if (quantidadeDePersonagens !== 1){
+            res.send("Personagem não encontrado");
+            return;
+        };
+
+        const result = await personagens.updateOne(
+            {
+                _id: ObjectId(id),
+            },
+            {
+                $set: objeto,
+            }
         );
+
+        console.log()
+
     });
     //quando se usa updateId precisa passar como parametro o id do bd com o id e seto ele como objeto inteiro
 
