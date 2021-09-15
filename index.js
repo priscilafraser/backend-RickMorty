@@ -62,6 +62,11 @@ require ("dotenv").config();
         const id = req.params.id;
         const personagem = await getPersonagensById(id);
 
+        if (!personagem){
+            res.status(404).send({error: "Personagem com este id não encontrado"});
+            return;
+        }
+
         res.send(personagem);
     });
 
@@ -71,19 +76,19 @@ require ("dotenv").config();
         const objeto = req.body;
         
         if (!objeto || !objeto.nome || !objeto.imagemUrl) {
-            res.send("Objeto inválido");
+            res.status(400).send({error: "Requisição inválida, certifique-se que todos os campos estejam preenchidos"});
             return;
         }
 
         const result = await personagens.insertOne(objeto);
 
-        
+        // Mostra algum erro com o mongodb... erro de servidor
         if (result.acknowledged == false) {
-            res.send("Ocorreu um erro");
+            res.status(500).send({error: "Ocorreu um erro"});
             return;
         } 
 
-        res.send(objeto);
+        res.status(201).send(objeto);  //status de criado
         // const {insertedCount} = await personagens;   //inserir objeto dentro do banco, criando variavel dentro da chaves pq estamos inserindo como objeto
     });
 
@@ -94,7 +99,7 @@ require ("dotenv").config();
 
 
         if (!objeto || !objeto.nome || !objeto.imagemUrl) {
-            res.send({message: "Requisição inválida"});
+            res.status(400).send({error: "Requisição inválida"});
             return;
         };
 
@@ -104,7 +109,7 @@ require ("dotenv").config();
         });
 
         if (quantidadeDePersonagens !== 1){
-            res.send("Personagem não encontrado");
+            res.status(404).send({error: "Personagem não encontrado"});
             return;
         };
 
@@ -117,8 +122,8 @@ require ("dotenv").config();
             }
         );
 
-        if (result.modifiedCount !== 1){
-            res.send("ocorreu um erro ao atualizar o personagem");
+        if (result.acknowledged == "undefined"){
+            res.status(500).send({error: "ocorreu um erro ao atualizar o personagem"});
             return;
         };
         res.send(await getPersonagensById(id));
@@ -135,19 +140,21 @@ require ("dotenv").config();
         })
 
         if (quantidadeDePersonagens !==1) {
-            res.send("personagem não encontrado")
+            res.status(404).send({error: "Personagem não encontrado"});
+            return;
         }
-
+        
         const result = await personagens.deleteOne({
             _id: ObjectId(id),
         });
 
+        // Se não deletar, erro no mongo
         if (result.deletedCount !== 1) {
-            res.send("Ocorreu um erro ao deletar o personagem");
+            res.status(500).send({error: "Ocorreu um erro ao deletar o personagem"});
             return;
         };
 
-        res.send("Personagem removido com sucesso");
+        res.send(204);   //quando faz delete não precisa retornar mensagem, somente status, daí coloca o status direto no send
 
     })
 
