@@ -117,7 +117,11 @@ require ("dotenv").config();
             }
         );
 
-        console.log()
+        if (result.modifiedCount !== 1){
+            res.send("ocorreu um erro ao atualizar o personagem");
+            return;
+        };
+        res.send(await getPersonagensById(id));
 
     });
     //quando se usa updateId precisa passar como parametro o id do bd com o id e seto ele como objeto inteiro
@@ -126,13 +130,24 @@ require ("dotenv").config();
     app.delete('/personagens/:id', async (req, res) => {
         const id = req.params.id;
 
-        res.send(
-            await personagens.deleteOne(
-                {
-                    _id: ObjectId(id),
-                }
-            )
-        );
+        const quantidadeDePersonagens = await personagens.countDocuments({
+            _id: ObjectId(id),
+        })
+
+        if (quantidadeDePersonagens !==1) {
+            res.send("personagem não encontrado")
+        }
+
+        const result = await personagens.deleteOne({
+            _id: ObjectId(id),
+        });
+
+        if (result.deletedCount !== 1) {
+            res.send("Ocorreu um erro ao deletar o personagem");
+            return;
+        };
+
+        res.send("Personagem removido com sucesso");
 
     })
 
