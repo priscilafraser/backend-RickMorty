@@ -16,6 +16,7 @@ require ("dotenv").config();
     const port = process.env.PORT || 3000;
 
     //const connectionString = `mongodb://${dbHost}:${dbPort}/${dbName}`;
+    //const connectionString = `mongodb+srv://${dbUser}:${dbPassword}@cluster0.${dbChar}.mongodb.net/${dbName}?retryWrites=true&w=majority`;
     const connectionString = `mongodb+srv://${dbUser}:${dbPassword}@cluster0.${dbChar}.mongodb.net/${dbName}?retryWrites=true&w=majority`;
 
 
@@ -34,19 +35,18 @@ require ("dotenv").config();
 
 
     // CORS (Cross Origin Resource) Aplica a todas as rotas criadas essas permissoes abaixo, seja de método e protege nosso backend
-    app.all("/", (req, res, next) => {
-        res.header("Access-Control-Allow-Origin", "*");
+    app.all("/*", (req, res, next) => {
+		res.header("Access-Control-Allow-Origin", "*");
 
-        res.header("Access-Control-Allow-Methods", "*");
+		res.header("Access-Control-Allow-Methods", "*");
 
-        res.header(
-            "Access-Control-Allow-Headers",
-            "Access-Control-Allow-Headers, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization"
-        );
+		res.header(
+			"Access-Control-Allow-Headers",
+			"Access-Control-Allow-Headers, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization"
+		);
 
-        next();
-    });
-
+		next();
+	});
 
 
     app.get('/', (req, res) => {
