@@ -4,6 +4,8 @@ const mongodb = require('mongodb');
 const ObjectId = mongodb.ObjectId;
 require ("dotenv").config();
 
+require("express-async-errors");
+
 (async () => {
     const dbUser = process.env.DB_USER;
     const dbPassword = process.env.DB_PASSWORD;
@@ -49,8 +51,9 @@ require ("dotenv").config();
 	});
 
 
-    app.get('/', (req, res) => {
-        res.send({info: "Olá, Blue!"});
+    app.get('/', async (req, res) => {
+        const teste = underfined;
+        res.send({info: "Olá, Blue!" + teste.jjs});
     });
     
 
@@ -157,8 +160,25 @@ require ("dotenv").config();
         res.send(204);   //quando faz delete não precisa retornar mensagem, somente status, daí coloca o status direto no send
 
     })
-
     
+    
+    // Central de tratamento de erros
+
+    //midleware -> Tratamento de rotas
+    app.all('*', function(req, res){
+        res.status(404).send({message: "Endpoint was not found"});
+    });
+    
+    //middleware -> Tratamento de erro no geral
+    app.use((error, req, res, next) => {
+        res.status(error.status || 500).send({
+            error: {
+                status: error.status || 500,
+                message: error.message || "Internal Server Error",
+            },
+        });
+    });
+
 
     app.listen(port, () => {
         console.log(`App rodando em http://localhost:${port}`);
