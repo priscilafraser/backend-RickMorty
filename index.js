@@ -6,8 +6,6 @@ require("dotenv").config();
 
 require("express-async-errors");
 var cors = require("cors");
-//requires de endpoints
-const home = require("./components/home/home");
 
 (async () => {
   const dbUser = process.env.DB_USER;
@@ -19,8 +17,6 @@ const home = require("./components/home/home");
   app.use(express.json());
   const port = process.env.PORT || 3000;
 
-  //const connectionString = `mongodb://${dbHost}:${dbPort}/${dbName}`;
-  //const connectionString = `mongodb+srv://${dbUser}:${dbPassword}@cluster0.${dbChar}.mongodb.net/${dbName}?retryWrites=true&w=majority`;
   const connectionString = `mongodb+srv://${dbUser}:${dbPassword}@cluster0.${dbChar}.mongodb.net/${dbName}?retryWrites=true&w=majority`;
 
   const options = { useUnifiedTopology: true };
@@ -37,26 +33,13 @@ const home = require("./components/home/home");
   const getPersonagensById = async (id) =>
     personagens.findOne({ _id: ObjectId(id) });
 
-  //CORS (Cross Origin Resource) Aplica a todas as rotas criadas essas permissoes abaixo, seja de método e protege nosso backend
-  // app.all("/*", (req, res, next) => {
-  //   res.header("Access-Control-Allow-Origin", "*");
-
-  //   res.header("Access-Control-Allow-Methods", "*");
-
-  //   res.header(
-  //     "Access-Control-Allow-Headers",
-  //     "Access-Control-Allow-Headers, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization"
-  //   );
-
-  //   next();
-  // });
-
+  // CORS
   app.use(cors());
-
   app.options("*", cors());
 
-  //criando a rota home
-  app.use("/home", home);
+  app.get("/", async (req, res) => {
+    res.send({ info: "Olá, Blue!" });
+  });
 
   app.get("/personagens", async (req, res) => {
     res.json(await getPersonagensValidos());
@@ -180,6 +163,6 @@ const home = require("./components/home/home");
   });
 
   app.listen(port, () => {
-    console.log(`App rodando em http://localhost:${port}/home`);
+    console.log(`App rodando em http://localhost:${port}`);
   });
 })();
